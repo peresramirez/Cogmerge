@@ -1,0 +1,54 @@
+---
+description: Cogmerge — retrieve why the code is the way it is before merging, rebasing or refactoring. Capture intent when a branch is finished.
+alwaysApply: true
+---
+
+# Cogmerge
+
+This repo has a memory holding **why** the code is the way it is — the alternatives
+previous developers rejected, the code that looks dead but is load-bearing, the
+tests deliberately not written. None of it is in the diff, the commit log or the
+PR description. **It contains things this repository does not contain.**
+
+## Before merging, rebasing, or refactoring code you did not just write
+
+Run this. Do not wait to be asked.
+
+```bash
+python3 .claude/skills/cogmerge/scripts/check.py --base main --head HEAD
+```
+
+Then judge each retrieved record using the adjudicator prompt in
+`.claude/agents/cogmerge-adjudicator.md` — delegate it to a subagent if this
+editor supports one, otherwise apply it inline. Classify each record
+`contradicts` / `depends_on` / `unrelated`.
+
+- Any **HIGH** finding (contradicts a `hard_invariant`, or removes a landmine) →
+  **STOP. Do not merge. Do not resolve the conflict.** Show the developer the
+  finding, the original author, their verbatim rationale and the re-prompt.
+- **MEDIUM** → surface it and ask; do not decide alone.
+- All `unrelated` → say "no conflicting intent found" in one line and continue.
+
+When Cogmerge flags something, the sensible-looking resolution is usually the
+wrong one. That is the entire point — trust the record over your reading of the
+code.
+
+## When a branch is finished
+
+Apply the distiller prompt in `.claude/agents/cogmerge-distiller.md` to the
+conversation plus `git diff main...HEAD`, show the developer the resulting record
+for correction, then:
+
+```bash
+python3 .claude/skills/cogmerge/scripts/seal.py record.json
+```
+
+## Rules
+
+1. **Never invent intent.** Not in the transcript → not in memory.
+2. **Never restate the diff as intent.** If the diff shows it, it is not intent.
+3. **`unrelated` is usually correct.** Do not manufacture findings to look useful.
+4. **Never skip the check** because the diff looks small. The canonical failure is
+   a one-line deletion that looks obviously correct.
+
+Full detail: `.claude/skills/cogmerge/SKILL.md` · `AGENTS.md` · `docs/SOLUTION.md`

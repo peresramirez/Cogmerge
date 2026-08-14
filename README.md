@@ -94,10 +94,33 @@ No dependencies on the default path — Python 3.9+ stdlib only.
 
 Use `qdrant` when you want the collections visible in your own Qdrant dashboard.
 
+## Portability
+
+Cogmerge is not Claude Code-specific. The reasoning lives in markdown and the
+scripts are stdlib Python, so any harness that can read instructions and run a
+command can drive it.
+
+| | Claude Code | Cursor | Codex |
+|---|---|---|---|
+| `AGENTS.md` | via `CLAUDE.md` → `@AGENTS.md` | native | native |
+| `.claude/skills/cogmerge/` | native | native (documented compat path) | native (compat path) |
+| `.cursor/rules/cogmerge.mdc` | — | `alwaysApply: true` | — |
+| `scripts/*.py` | ✅ | ✅ | ✅ |
+| `.claude/agents/*.md` | native subagents | prompts applied inline | prompts applied inline |
+
+Only the two subagents are harness-specific, and only in *how they are invoked* —
+the prompts themselves are plain markdown, so an editor without subagents applies
+them inline and gets the same result.
+
+Cursor is covered twice on purpose: it reads `AGENTS.md` and `.claude/skills/`
+already, and `.cursor/rules/cogmerge.mdc` is `alwaysApply: true` so the
+check-before-merge contract holds even if skill discovery misfires.
+
 ## Layout
 
 ```
 AGENTS.md                       the behavioural contract (CLAUDE.md points here)
+.cursor/rules/cogmerge.mdc      same contract, always-applied, for Cursor
 .claude/agents/                 cogmerge-distiller, cogmerge-adjudicator
 .claude/skills/cogmerge/
   SKILL.md                      when and how to seal / check
