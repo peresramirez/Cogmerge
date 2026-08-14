@@ -1,0 +1,43 @@
+{
+  "repo": "acme/payments-api",
+  "branch": "feat/stripe-debounce",
+  "pr": 121,
+  "author": "alice",
+  "goal": "Stop Stripe 429s on the account webhook without adding infrastructure.",
+
+  "decisions": [
+    {
+      "statement": "Debounce webhook delivery in-process instead of queueing it.",
+      "rationale": "Stripe caps this endpoint at 25 requests per second per account. A Redis-backed queue would also solve it, but it adds a failure mode we have no monitoring for yet — we would be paging on it blind. In-process debounce is uglier and correct.",
+      "rejected_alternatives": [
+        "Redis-backed delivery queue — adds an unmonitored failure mode",
+        "Requesting a higher Stripe rate limit — support ticket, weeks of lead time"
+      ],
+      "strength": "hard_invariant",
+      "expires_when": "we move to Stripe API v4, which lifts the per-account cap",
+      "touches": ["src/webhooks/stripe.py:debounce_webhook"]
+    }
+  ],
+
+  "landmines": [
+    {
+      "description": "debounce_webhook looks like a pointless pass-through wrapper.",
+      "why_it_looks_wrong": "No test covers it, no caller depends on its timing, and it reads like a no-op decorator that could be inlined away.",
+      "what_breaks_if_removed": "Stripe starts returning 429 under load. Completely silent in dev and in CI — it only appears at production traffic levels.",
+      "touches": ["src/webhooks/stripe.py:debounce_webhook"]
+    }
+  ],
+
+  "omissions": [
+    {
+      "what_was_not_done": "No unit test for the debounce timing.",
+      "why_not": "Reproducing it needs a live rate limit. A mocked-clock test would keep passing while the real behaviour regressed, which is worse than having no test at all."
+    }
+  ],
+
+  "open_questions": [
+    "Is the 25 req/s cap per account or per endpoint? Assumed per account."
+  ],
+
+  "surfaces": ["src/webhooks/stripe.py"]
+}

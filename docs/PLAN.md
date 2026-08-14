@@ -1,5 +1,12 @@
 # PLAN.md — Implementation
 
+> **Superseded for the hackathon by the 2-hour path.** The build shipped as a Claude Code
+> **skill + two subagents + `AGENTS.md`**, not a CLI/MCP/Slack stack: the agent harness is
+> the runtime, so the only code is three scripts that talk to Cognee. No MCP server, no
+> Slack app, no LLM SDK, no local infra (Qdrant Cloud). See [`../AGENTS.md`](../AGENTS.md)
+> and [`../.claude/skills/cogmerge/SKILL.md`](../.claude/skills/cogmerge/SKILL.md).
+> Everything below stays as the full-scope design and the risk register — both still apply.
+
 Build order is chosen so that **there is a demoable artifact at every hour mark**. If the
 night ends early, you still demo. Nothing is built that the 90-second demo doesn't touch.
 

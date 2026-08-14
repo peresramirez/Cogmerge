@@ -1,0 +1,5 @@
+# Cogmerge has NO dependencies for the default (cloud) backend.
+# Python 3.9+ stdlib only: urllib + json. Nothing to pip install.
+#
+# Only for COGMERGE_BACKEND=qdrant (cognee library -> your own Qdrant cluster):
+#   pip install cognee cognee-community-vector-adapter-qdrant
