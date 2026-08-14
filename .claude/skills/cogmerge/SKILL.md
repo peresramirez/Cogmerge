@@ -31,9 +31,9 @@ On `COGMERGE_BACKEND=qdrant`, also run `init_qdrant.py` once after the first
 seal. Without it Qdrant cannot filter on `node_set` and every CHECK silently
 returns "no prior intent recorded" — a false all-clear.
 
-Scripts live in `.claude/skills/cogmerge/scripts/`. Always `import bootstrap`
-first — it calls the Qdrant adapter's `register()`, without which Cognee raises
-`Unsupported vector database provider: qdrant`.
+Scripts live in `.claude/skills/cogmerge/scripts/`. They all `import backend`
+first, which loads `.env` and selects the backend — never talk to Cognee any
+other way.
 
 ---
 
@@ -50,7 +50,7 @@ Trigger: "seal this branch", "I'm done", PR opened, or end of a working session.
    the subagent has one job and a strict output contract, and keeping it separate
    is what stops the record filling up with restated diff.
    Hand it the conversation, the diff and the metadata. It returns JSON matching
-   `reference/intent-record.md`.
+   `references/intent-record.md`.
 
 3. **Show the record to the developer** before writing. This is memory the whole
    team will read; they get to correct it. Ask once: *"Sealing this — anything
@@ -58,7 +58,7 @@ Trigger: "seal this branch", "I'm done", PR opened, or end of a working session.
 
 4. **Write it:**
    ```bash
-   python .claude/skills/cogmerge/scripts/seal.py record.json
+   python3 .claude/skills/cogmerge/scripts/seal.py record.json
    ```
 
 If the distiller returns no decisions, no landmines and no omissions, say so and
@@ -74,7 +74,7 @@ This is not optional and does not need to be asked for.
 
 1. **Retrieve:**
    ```bash
-   python .claude/skills/cogmerge/scripts/check.py --base main --head HEAD
+   python3 .claude/skills/cogmerge/scripts/check.py --base main --head HEAD
    ```
    (or `--files a.py b.py` when there is no branch yet). It prints the surfaces
    being changed and every recorded intent that touches them.

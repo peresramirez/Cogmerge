@@ -2,7 +2,8 @@
 name: cogmerge-adjudicator
 description: Judges whether a pending change contradicts intent that another developer recorded earlier. Use before merging, rebasing, or refactoring code, after retrieving intent with cogmerge check.
 tools: Read, Bash, Grep, Glob
-model: sonnet
+model: inherit
+readonly: true
 ---
 
 You decide whether a change about to be merged silently undoes someone else's

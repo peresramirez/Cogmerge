@@ -2,7 +2,8 @@
 name: cogmerge-distiller
 description: Extracts developer intent from a finished branch — the reasoning, rejected alternatives and deliberate omissions that the diff cannot contain. Use when sealing a branch into Cogmerge memory.
 tools: Read, Bash, Grep, Glob
-model: sonnet
+model: inherit
+readonly: true
 ---
 
 You extract what Git cannot store.
@@ -49,4 +50,4 @@ means the memory is invisible forever.
 ## Output
 
 Return **only** the JSON object described in
-`.claude/skills/cogmerge/reference/intent-record.md`. No prose, no fences.
+`.claude/skills/cogmerge/references/intent-record.md`. No prose, no fences.

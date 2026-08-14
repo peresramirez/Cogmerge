@@ -136,21 +136,31 @@ Cogmerge is not Claude Code-specific. The reasoning lives in markdown and the
 scripts are stdlib Python, so any harness that can read instructions and run a
 command can drive it.
 
+Nothing here is Claude Code-specific. Skills and subagents are an open standard,
+and Cursor and Codex both read the `.claude/` directories directly — so **one
+copy serves all three**.
+
 | | Claude Code | Cursor | Codex |
 |---|---|---|---|
 | `AGENTS.md` | via `CLAUDE.md` → `@AGENTS.md` | native | native |
-| `.claude/skills/cogmerge/` | native | native (documented compat path) | native (compat path) |
+| `.claude/skills/cogmerge/` | native | documented compat path | documented compat path |
+| `.claude/agents/*.md` | native | documented compat path | documented compat path |
 | `.cursor/rules/cogmerge.mdc` | — | `alwaysApply: true` | — |
-| `scripts/*.py` | ✅ | ✅ | ✅ |
-| `.claude/agents/*.md` | native subagents | prompts applied inline | prompts applied inline |
+| `scripts/*.py` | ✅ stdlib | ✅ stdlib | ✅ stdlib |
 
-Only the two subagents are harness-specific, and only in *how they are invoked* —
-the prompts themselves are plain markdown, so an editor without subagents applies
-them inline and gets the same result.
+**Do not duplicate the skill into `.cursor/skills/`.** Cursor gives `.cursor/`
+precedence over `.claude/` on a name conflict, so a second copy doesn't add
+coverage — it adds a copy that will silently win once the two drift apart.
 
-Cursor is covered twice on purpose: it reads `AGENTS.md` and `.claude/skills/`
-already, and `.cursor/rules/cogmerge.mdc` is `alwaysApply: true` so the
-check-before-merge contract holds even if skill discovery misfires.
+Cursor's other native locations, if you prefer them to `.claude/`: skills in
+`.cursor/skills/` or `.agents/skills/`, subagents in `.cursor/agents/`, plus the
+`~/`-prefixed variants for user-level scope.
+
+The one thing that *is* Cursor-specific is `.cursor/rules/cogmerge.mdc`, and it
+earns its place: skills are **agent-decided** — the model judges whether they're
+relevant — while `alwaysApply: true` is unconditional. For a rule like "never
+merge without checking first," you do not want the model deciding whether the
+rule applies. That judgement is precisely what Cogmerge exists to distrust.
 
 ## Layout
 
@@ -160,7 +170,7 @@ AGENTS.md                       the behavioural contract (CLAUDE.md points here)
 .claude/agents/                 cogmerge-distiller, cogmerge-adjudicator
 .claude/skills/cogmerge/
   SKILL.md                      when and how to seal / check
-  reference/intent-record.md    the JSON contract the distiller emits
+  references/intent-record.md   the JSON contract the distiller emits
   scripts/backend.py            the only thing that talks to Cognee
   scripts/seal.py               write one intent record
   scripts/check.py              retrieve intent for a pending diff
