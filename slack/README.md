@@ -33,32 +33,56 @@ want to ask about *code decisions* against Cognee Cloud, use this.
 
 ## Setup
 
-**1. Create the Slack app** — [api.slack.com/apps](https://api.slack.com/apps) →
-**Create New App** → **From an app manifest** → pick your workspace → paste
-[`manifest.yaml`](./manifest.yaml) → Create.
+**1. Create the app** — [api.slack.com/apps](https://api.slack.com/apps) →
+**Create New App** → **From an app manifest** → pick your workspace → **Next** →
+switch the tab to **YAML**, paste all of [`manifest.yaml`](./manifest.yaml) →
+**Next** → **Create**.
 
-**2. Get two tokens**
+**2. Generate the app-level token** — **Basic Information** → *App-Level Tokens*
+→ **Generate Token and Scopes**. Name it anything, add the **`connections:write`**
+scope, Generate, copy the **`xapp-…`** value. Socket Mode will not connect
+without this scope.
 
-| Token | Where | Starts with |
-|---|---|---|
-| App-level token | **Basic Information** → *App-Level Tokens* → Generate, scope `connections:write` | `xapp-` |
-| Bot token | **OAuth & Permissions** → *Install to Workspace* → copy Bot User OAuth Token | `xoxb-` |
+**3. Install, and get the bot token** — **Install App** → *Install to Workspace* →
+**Allow** → copy the **Bot User OAuth Token** (**`xoxb-…`**).
 
-**3. Add them to `.env`**
+**4. Add both to `.env`**
 
 ```dotenv
 SLACK_BOT_TOKEN=xoxb-...
 SLACK_APP_TOKEN=xapp-...
 ```
 
-**4. Run it**
+**5. Run it**
 
 ```bash
 pip install slack_bolt
 python3 slack/bot.py
 ```
 
-Then `/cogmerge <anything>` in any channel, or `@Cogmerge` in a thread.
+**6. Use it** — `/cogmerge <anything>` works in any channel right away. For
+`@Cogmerge` mentions, invite the bot to that channel first: `/invite @Cogmerge`.
+
+## Adding your team
+
+Workspace name (top left) → **Invite people to \<workspace\>**. For a quick
+setup, enable the **shareable invite link** in that dialog so people can join
+themselves.
+
+Slack's **guest** accounts (single- and multi-channel) are **paid-plan only** —
+on the free plan everyone you invite is a full member with access to every public
+channel. Fine for a team or a demo; just don't plan to scope anyone's visibility
+that way.
+
+### You need fewer people than you think
+
+The developers whose decisions Cogmerge answers with **live in the memory, not in
+Slack**. Ask `/cogmerge why do we debounce the stripe webhook?` and the answer
+comes back attributed to `alice`, branch `feat/stripe-debounce`, PR #121 —
+whether or not Alice is in the workspace, still on the team, or reachable.
+
+That is the point. One account is enough to see it work: you ask, and the answer
+comes from someone who isn't there.
 
 ## Socket Mode, on purpose
 
