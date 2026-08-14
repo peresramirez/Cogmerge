@@ -87,7 +87,13 @@ class _Cloud:
     def cognify(self) -> None:
         self._post("/api/v1/cognify", {"datasets": [DATASET], "runInBackground": False})
 
-    def search(self, query: str, node_name: list[str] | None, top_k: int = 12) -> list[str]:
+    def search(
+        self,
+        query: str,
+        node_name: list[str] | None,
+        top_k: int = 12,
+        system_prompt: str | None = None,
+    ) -> list[str]:
         payload = {
             "query": query,
             "searchType": "GRAPH_COMPLETION",
@@ -96,6 +102,8 @@ class _Cloud:
         }
         if node_name:
             payload["nodeName"] = node_name
+        if system_prompt:
+            payload["systemPrompt"] = system_prompt
         out: list[str] = []
         for row in self._post("/api/v1/search", payload, timeout=180) or []:
             res = row.get("search_result") if isinstance(row, dict) else row
@@ -152,7 +160,13 @@ class _Qdrant:
     def cognify(self) -> None:
         self._run(self.cognee.cognify(datasets=[DATASET]))
 
-    def search(self, query: str, node_name: list[str] | None, top_k: int = 12) -> list[str]:
+    def search(
+        self,
+        query: str,
+        node_name: list[str] | None,
+        top_k: int = 12,
+        system_prompt: str | None = None,
+    ) -> list[str]:
         from cognee import SearchType
 
         kw = {
@@ -161,6 +175,8 @@ class _Qdrant:
             "datasets": [DATASET],
             "top_k": top_k,
         }
+        if system_prompt:
+            kw["system_prompt"] = system_prompt
         if node_name:
             kw["node_name"] = node_name
             kw["node_name_filter_operator"] = "OR"

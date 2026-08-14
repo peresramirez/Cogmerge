@@ -49,6 +49,46 @@ def scope_for(text: str) -> list[str] | None:
     return sorted(set(tags)) + [f"repo:{backend.REPO}"]
 
 
+# Slack's mrkdwn is NOT Markdown. Bold is *one* asterisk, there are no headings
+# and no tables. An LLM writing normal Markdown renders as literal **asterisks**,
+# so we ask for Slack syntax AND convert deterministically -- the prompt is a
+# preference, this is the guarantee.
+SLACK_STYLE = (
+    "Answer using Slack mrkdwn, never Markdown. Bold is *single asterisks*. "
+    "Italic is _underscores_. Code is `backticks`. There are NO headings and NO "
+    "tables — never emit #, ##, ** or a | table. Use short lines and • bullets. "
+    "Answer from the recorded intent only: quote the rationale and any rejected "
+    "alternatives verbatim, then finish with ONE source line in the form "
+    "`— alice · feat/stripe-debounce · PR #121`. Do not repeat the source after "
+    "every point. If nothing was recorded, say so plainly instead of reasoning "
+    "from the code."
+)
+
+_BOLD = re.compile(r"\*\*(.+?)\*\*", re.S)
+_HEAD = re.compile(r"^\s{0,3}#{1,6}\s+(.+?)\s*$")
+_BULLET = re.compile(r"^(\s*)[-*]\s+")
+_TABLE_SEP = re.compile(r"^\s*\|?[\s:|-]{5,}\|?\s*$")
+
+
+def to_mrkdwn(text: str) -> str:
+    """Markdown -> Slack mrkdwn. Line-based: cross-line regex eats newlines."""
+    text = _BOLD.sub(r"*\1*", text)  # **bold** -> *bold*, safe across lines
+
+    out = []
+    for line in text.splitlines():
+        if _TABLE_SEP.match(line):
+            continue  # |---|---| separator row
+        if line.strip().startswith("|"):
+            cells = [c.strip() for c in line.strip().strip("|").split("|")]
+            line = "• " + " · ".join(c for c in cells if c)
+        else:
+            line = _HEAD.sub(r"*\1*", line)
+            line = _BULLET.sub(r"\1• ", line)
+        out.append(line)
+
+    return re.sub(r"\n{3,}", "\n\n", "\n".join(out)).strip()
+
+
 def answer(question: str) -> str:
     if not question.strip():
         return (
@@ -57,19 +97,12 @@ def answer(question: str) -> str:
             "• `/cogmerge why do we debounce the stripe webhook?`"
         )
 
-    prompt = (
-        f"{question}\n\n"
-        "Answer from the recorded intent only. Quote the rationale and any "
-        "rejected alternatives verbatim, and always name the branch, PR and "
-        "author each point came from. If nothing was recorded about this, say "
-        "so plainly rather than reasoning from the code."
-    )
-
     be = backend.get()
     tags = scope_for(question)
-    results = be.search(prompt, tags)
+    results = be.search(question, tags, system_prompt=SLACK_STYLE)
     if not results and tags:
-        results = be.search(prompt, None)  # scoped miss must not read as "nothing known"
+        # a scoped miss must not read as "nothing known"
+        results = be.search(question, None, system_prompt=SLACK_STYLE)
 
     if not results:
         return (
@@ -77,7 +110,7 @@ def answer(question: str) -> str:
             "_Intent gets captured when someone seals a branch — this answers from "
             "what the team has recorded, not from reading the code._"
         )
-    return "\n\n".join(str(r) for r in results)
+    return to_mrkdwn("\n\n".join(str(r) for r in results))
 
 
 app = App(token=os.environ["SLACK_BOT_TOKEN"])
@@ -86,11 +119,15 @@ app = App(token=os.environ["SLACK_BOT_TOKEN"])
 @app.command("/cogmerge")
 def slash(ack, command, respond):
     ack()  # Slack demands an ack inside 3s; retrieval takes longer than that.
+    question = command.get("text", "")
+
+    # in_channel: everyone sees the question and the answer. The team learning
+    # why together is the point -- an ephemeral reply teaches one person.
     respond(
-        response_type="ephemeral",
-        text=f":hourglass_flowing_sand: Looking up _{command.get('text', '')}_ …",
+        response_type="in_channel",
+        text=f"<@{command['user_id']}> asked: _{question}_\n:hourglass_flowing_sand: searching the team's memory…",
     )
-    respond(response_type="ephemeral", replace_original=True, text=answer(command.get("text", "")))
+    respond(response_type="in_channel", replace_original=True, text=answer(question))
 
 
 @app.event("app_mention")
