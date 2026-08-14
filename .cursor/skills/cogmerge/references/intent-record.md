@@ -43,13 +43,30 @@ Every field except `goal` is optional; emit only what the conversation supports.
     }
   ],
 
+  "clarifications": [
+    {
+      "question": "Should the debounce be per-account or global across all tenants?",
+      "answer": "Per-account. Stripe's cap is per-account, and a global debounce would throttle tenants who are nowhere near the limit.",
+      "touches": ["src/webhooks/stripe.py:debounce_webhook"]
+    }
+  ],
+
   "open_questions": [
     "Does the 25 req/s cap apply per account or per endpoint? Assumed per account."
   ],
 
-  "surfaces": ["src/webhooks/stripe.py"]
+  "surfaces": ["src/webhooks/stripe.py"],
+
+  "changed_files": [
+    {"status": "M", "path": "src/webhooks/stripe.py"},
+    {"status": "A", "path": "src/webhooks/__init__.py"}
+  ]
 }
 ```
+
+`changed_files` is **not written by the distiller** — `seal.py` derives it from
+`git diff --name-status` at seal time. Do not hand-author it; anything the LLM
+transcribes here would be a worse copy of something git already knows exactly.
 
 ## Field notes
 
@@ -61,3 +78,20 @@ Every field except `goal` is optional; emit only what the conversation supports.
 | `expires_when` | Intent has a shelf life. Without this, memory becomes dogma. |
 | `touches` | The join key. Wrong path = invisible forever. |
 | `what_breaks_if_removed` | Turns "don't touch" into a reason someone will accept. |
+| `clarifications` | The highest-signal field after `rationale` — see below. |
+| `changed_files` | Blast radius, for review. Machine-derived, never authored. |
+
+### Why `clarifications` matter more than they look
+
+When an agent stops and asks the developer a question, that question marks a
+**proven ambiguity**: the code and the task were not clear enough to proceed.
+The developer's answer resolves it.
+
+The next agent to touch that code will hit the *same* ambiguity — that is what
+makes it structural rather than incidental. Storing the exchange pre-answers a
+question that is otherwise guaranteed to be asked again, and asked at the worst
+possible moment: mid-merge, by someone with no context.
+
+Capture the question as it was asked and the answer in the developer's own
+words. Do not summarise the answer into a decision — the decision may already be
+in `decisions`, but the *shape of the confusion* is what makes this reusable.

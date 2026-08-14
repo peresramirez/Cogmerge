@@ -13,8 +13,11 @@
 </p>
 
 <p align="center">
-Cogmerge gives every merge a memory — it captures <em>why</em> developers and their
-agents made the decisions they made, and warns you before a branch silently undoes them.
+Cogmerge captures <em>why</em> your team made the decisions they made — the alternatives
+they rejected, the code that looks dead but isn't, the questions they answered along the
+way — and gives it back to whoever needs it next. It stops an agent from silently undoing
+a deliberate choice at merge time, and it tells <em>you</em> why the code is the way it is
+while you're still deciding what to build.
 </p>
 
 ---
@@ -78,6 +81,47 @@ symbol they both touched — two developers who never spoke, connected by the co
 **The agent harness is the runtime.** No CLI, no MCP server, no LLM SDK, no daemon.
 Your agent reads `AGENTS.md`, two subagents do the reasoning, and the scripts only do
 what a subagent cannot: write to Cognee and query it back.
+
+## It's for the humans too
+
+Blocking bad merges is the sharp edge. The bigger everyday use is **understanding
+your teammates' reasoning while you build**, not after you break something.
+
+Ask about any file or symbol and get the team's history of *why*:
+
+```bash
+python3 .claude/skills/cogmerge/scripts/check.py --files src/webhooks/stripe.py
+```
+```
+Decision   Debounce in-process instead of queueing        — alice, PR #121
+           "A Redis queue would work but adds a failure mode we have no
+            monitoring for yet."
+           Rejected: Redis queue · raising the Stripe rate limit
+
+Q&A        "Should the debounce be per-account or global?"
+           "Per-account. A global debounce would throttle tenants who are
+            nowhere near the limit."
+```
+
+That changes how a feature gets built, not just how it gets merged:
+
+- **You stop re-litigating settled decisions.** The Redis queue was already
+  considered and rejected for a stated reason. You either have new information
+  that reverses it, or you move on — but you're never the third person to
+  independently rediscover it.
+- **You inherit the constraints, not just the code.** Reading a file tells you
+  what it does. Cogmerge tells you which parts are load-bearing, which gaps are
+  deliberate, and what breaks if you're clever.
+- **Onboarding stops being a queue of DMs.** A new joiner asks the codebase
+  directly, and gets answers in the words of whoever actually decided.
+- **Questions your agent asked get reused.** When Claude stops and asks *"per
+  account or global?"*, that marks a **proven ambiguity** — the code wasn't clear
+  enough to proceed. Your answer is stored, so the next person hitting the same
+  confusion finds it already resolved, rather than asking in Slack and waiting.
+
+Same index, two audiences: the agent reads it before a merge, you read it before
+you commit to an approach. It is the team's answer to *"why is it like this?"* —
+which today lives in the heads of whoever happens to still work here.
 
 ## Get started
 

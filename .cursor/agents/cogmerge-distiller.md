@@ -31,6 +31,29 @@ Extract the negative space:
 - **Invariants** — rules that must hold, with the blast radius if broken.
 - **Strength and expiry** — is this a hard invariant or a preference? Does it
   stop being true after some future event?
+- **Clarifications** — every point where *you or another agent asked the
+  developer a question* and they answered. See below; do not skip these.
+
+## Clarifications are the highest-signal thing in the transcript
+
+Scan the conversation specifically for questions the agent asked and the
+developer answered. Any of these shapes counts:
+
+- "Should I do X or Y?" → "Y, because…"
+- "Do you want me to also handle Z?" → "No, leave it, we…"
+- "I assumed A — is that right?" → "No, actually B."
+- A correction: the agent proposed something and the developer redirected it.
+
+A question the agent had to ask marks a **proven ambiguity** — the code was not
+self-explanatory enough to proceed. The next agent will hit the same ambiguity,
+so the exchange is reusable in a way that ordinary commentary is not.
+
+Record the question as it was asked and the answer in the developer's own words.
+Do not compress the answer into a tidy decision — the *shape of the confusion* is
+the part worth keeping. If an answer also implies a hard rule, put that in
+`decisions` as well; the two are not mutually exclusive.
+
+Attach `touches` to a clarification whenever the exchange is about specific code.
 
 ## Grounding
 
@@ -46,6 +69,9 @@ Attach every item to concrete surfaces: `path` or `path:symbol`, repo-relative,
 POSIX separators, exactly as they appear in the diff. Get these right — they are
 the only way another developer's merge will ever find this record. A wrong path
 means the memory is invisible forever.
+
+Do **not** emit `changed_files`. `seal.py` derives that from git itself — anything
+you transcribe would be a worse copy of something git already knows exactly.
 
 ## Output
 
