@@ -113,11 +113,16 @@ class _Qdrant:
     name = "cognee-lib+qdrant"
 
     def __init__(self) -> None:
-        # Import side-effect registers the provider. Must run before any cognee
-        # call, or cognee silently stays on LanceDB / raises Unsupported provider.
+        # Registers the provider. Must happen before any cognee call, or cognee
+        # silently stays on LanceDB / raises Unsupported provider.
+        #
+        # Version-dependent: in adapter 0.4.0 `register` is a MODULE and the
+        # import itself is the side-effect; other versions export a callable.
+        # Handle both rather than pinning.
         from cognee_community_vector_adapter_qdrant import register  # noqa: F401
 
-        register()
+        if callable(register):
+            register()
         import cognee
 
         self.cognee = cognee
@@ -131,9 +136,15 @@ class _Qdrant:
         )
 
     def _run(self, coro):
+        # One loop for the process. asyncio.run() per call would give cognee a
+        # fresh loop each time and strand its connection pools; get_event_loop()
+        # is deprecated on 3.12+.
         import asyncio
 
-        return asyncio.get_event_loop().run_until_complete(coro)
+        if getattr(self, "_loop", None) is None:
+            self._loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(self._loop)
+        return self._loop.run_until_complete(coro)
 
     def add(self, text: str, node_set: list[str]) -> None:
         self._run(self.cognee.add(text, dataset_name=DATASET, node_set=node_set))

@@ -113,6 +113,23 @@ Or ask your agent to merge a branch and watch it run the check unprompted.
 
 Use `qdrant` when you want the collections visible in your own Qdrant dashboard.
 
+**On Qdrant, run this once after your first seal:**
+
+```bash
+python3 .claude/skills/cogmerge/scripts/init_qdrant.py
+```
+
+Cogmerge filters every retrieval by `node_set`, which Qdrant refuses to do on an
+unindexed payload field. The community adapter creates the collections but not
+that index, and the failure is **soft** — cognee logs a 400, returns empty
+context, and the answer reads like "no prior intent recorded" instead of "your
+filter is broken." A false all-clear is the one failure mode this tool must never
+have, so treat `init_qdrant.py` as part of setup, not a troubleshooting step.
+
+Two more Qdrant notes worth knowing: the cluster endpoint needs the **`:6333`**
+port (the dashboard shows it without), and `cognee` requires **Python
+`>=3.10,<3.14`** — it will not install on 3.14.
+
 ## Portability
 
 Cogmerge is not Claude Code-specific. The reasoning lives in markdown and the

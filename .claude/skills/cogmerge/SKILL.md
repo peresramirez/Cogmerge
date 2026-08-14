@@ -21,10 +21,15 @@ who never spoke to you reaches you, through the one symbol you both touched.
 Everything is hosted — no local infra.
 
 ```bash
-pip install -r requirements.txt
-cp .env.example .env       # add LLM_API_KEY + your Qdrant Cloud URL and key
-python .claude/skills/cogmerge/scripts/smoke.py   # must print OK
+cp .env.example .env       # add your Cognee credentials
+python3 .claude/skills/cogmerge/scripts/smoke.py   # must print OK
 ```
+
+Nothing to install on the default (`cloud`) backend — stdlib only.
+
+On `COGMERGE_BACKEND=qdrant`, also run `init_qdrant.py` once after the first
+seal. Without it Qdrant cannot filter on `node_set` and every CHECK silently
+returns "no prior intent recorded" — a false all-clear.
 
 Scripts live in `.claude/skills/cogmerge/scripts/`. Always `import bootstrap`
 first — it calls the Qdrant adapter's `register()`, without which Cognee raises
