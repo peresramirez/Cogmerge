@@ -73,17 +73,36 @@ symbol they both touched — two developers who never spoke, connected by the co
 `AGENTS.md` tells any agent when to act, two subagents do the reasoning, and the
 scripts only do what a subagent cannot: write to Cognee and query it back.
 
-## Quickstart
+## Install into your repo
+
+Cogmerge is four files and a folder. Drop them into any project:
 
 ```bash
-cp .env.example .env          # add your Cognee Cloud credentials
-python3 .claude/skills/cogmerge/scripts/smoke.py    # must print OK
+git clone --depth 1 https://github.com/peresramirez/Cogmerge /tmp/cogmerge
 
-bash demo/setup.sh            # builds two branches that merge cleanly
-bash demo/run.sh              # seals Alice's intent, then checks Bob's PR
+cd /path/to/your/project
+cp -r /tmp/cogmerge/.claude /tmp/cogmerge/.cursor .          # skill + subagents + rules
+cp    /tmp/cogmerge/AGENTS.md /tmp/cogmerge/.env.example .
+echo '@AGENTS.md' > CLAUDE.md                                # Claude Code entry point
+
+cp .env.example .env                                         # add your Cognee credentials
+python3 .claude/skills/cogmerge/scripts/smoke.py             # must print OK
 ```
 
-No dependencies on the default path — Python 3.9+ stdlib only.
+No dependencies on the default path — Python 3.9+ stdlib only. Nothing to
+install, no server to run, no MCP to configure.
+
+Then just work normally. Your agent reads `AGENTS.md`, and from that point on it
+checks before it merges and offers to seal when you finish a branch.
+
+### Verify it took
+
+```bash
+# in a repo with at least one sealed branch
+python3 .claude/skills/cogmerge/scripts/check.py --files path/to/some/file.py
+```
+
+Or ask your agent to merge a branch and watch it run the check unprompted.
 
 ## Backends
 
@@ -129,9 +148,11 @@ AGENTS.md                       the behavioural contract (CLAUDE.md points here)
   scripts/seal.py               write one intent record
   scripts/check.py              retrieve intent for a pending diff
   scripts/surfaces.py           git diff -> path / path:symbol
-demo/                           two branches that merge cleanly and contradict
-docs/                           PROBLEM, SOLUTION, PLAN
+docs/                           PROBLEM, SOLUTION, BRAND
 ```
+
+Everything above is what you copy. There is no runtime, no service and no state
+outside your Cognee instance — uninstalling is `rm -rf .claude/skills/cogmerge`.
 
 ## Why not a markdown file
 
