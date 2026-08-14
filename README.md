@@ -223,23 +223,38 @@ Three things that will bite you on Option B, all learned the hard way:
 
 ## Works with
 
-One copy serves both editors — Cursor reads Claude's directories natively, and the
-`.cursor/` tree is generated from `.claude/` so they cannot drift.
+Agent Skills is an open standard, so one skill runs in **Claude Code, Cursor and
+Codex**. Each scans different directories, so the installer lays down all three.
 
-| | Claude Code | Cursor |
-|---|---|---|
-| `AGENTS.md` | via `CLAUDE.md` → `@AGENTS.md` | native |
-| skill | `.claude/skills/cogmerge/` | `.cursor/skills/cogmerge/` |
-| subagents | `.claude/agents/` | `.cursor/agents/` |
-| always-on rule | — | `.cursor/rules/cogmerge.mdc` |
+| Directory | Claude Code | Cursor | Codex |
+|---|---|---|---|
+| `.claude/skills`, `.claude/agents` | **native** | compat | — |
+| `.agents/skills`, `.agents/agents` | — | **native** | **native** |
+| `.cursor/skills`, `.cursor/agents` | — | **native** (wins on conflict) | — |
+| `.cursor/rules/cogmerge.mdc` | — | always-applied rule | — |
+| `AGENTS.md` | via `CLAUDE.md` → `@AGENTS.md` | native | native |
+
+`.agents/skills` is the neutral one — Codex scans it at the repo root and Cursor
+reads it too. **There is no `.codex/skills`**: Codex uses `.agents/skills`, plus
+`~/.agents/skills` for user scope and `/etc/codex/skills` for machine scope.
+
+Install just one if you prefer:
+
+```bash
+curl ... | bash -s -- --claude    # .claude only
+curl ... | bash -s -- --cursor    # .cursor only
+curl ... | bash -s -- --codex     # .agents only (Codex; Cursor reads it too)
+```
 
 Cursor gets a rule *and* a skill on purpose: skills are **agent-decided** — the model
 judges whether they're relevant — while `alwaysApply: true` is unconditional. For
 "never merge without checking first," you don't want the model deciding whether the
 rule applies. That judgement is exactly what Cogmerge exists to distrust.
 
-Contributors: `.claude/` is the source of truth. Run `bash tools/sync-cursor.sh`
-after editing it, and `--check` to verify.
+**Contributors: `.claude/` is the source of truth; `.cursor/` and `.agents/` are
+generated.** Never hand-edit them — `.cursor/` outranks `.claude/` in Cursor, so an
+edit there silently wins forever once they drift. Run `bash tools/sync-agents.sh`
+after editing `.claude/`, and `--check` to verify.
 
 ## Layout
 
@@ -256,7 +271,7 @@ install.sh                      one-command install into any repo
     scripts/check.py            retrieve intent for a pending diff
     scripts/surfaces.py         git diff -> path / path:symbol
     scripts/init_qdrant.py      one-time payload index (Qdrant only)
-.cursor/                        generated from .claude/ by tools/sync-cursor.sh
+.cursor/  .agents/            generated from .claude/ by tools/sync-agents.sh
 slack/                          optional bot: /cogmerge in any channel
 docs/                           PROBLEM, SOLUTION, BRAND
 ```
