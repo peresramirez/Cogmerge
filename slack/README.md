@@ -57,8 +57,42 @@ SLACK_APP_TOKEN=xapp-...
 
 ```bash
 pip install slack_bolt
-python3 slack/bot.py
+bash slack/run.sh                                  # uses COGMERGE_REPO from .env
+bash slack/run.sh your-org/your-repo               # or answer about another repo
 ```
+
+`run.sh` picks the right interpreter, refuses to start a second copy, and keeps
+the machine awake while it runs.
+
+## Keeping it running
+
+The bot is a foreground process, not a service. It answers only while it is up.
+
+| How | Command | Survives |
+|---|---|---|
+| A spare terminal tab | `bash slack/run.sh` | until you close the tab |
+| Detached | `nohup bash slack/run.sh > /tmp/cogmerge-bot.log 2>&1 &` | closing the terminal, not a reboot |
+| Always-on box | same, on a server someone else keeps up | everything |
+
+`run.sh` wraps the process in `caffeinate -i` on macOS, so a closed lid or an
+idle screen will not kill it mid-demo. It does **not** survive a reboot — for
+that, run it somewhere that stays up.
+
+ 
+**Never run two copies.** Slack allows multiple Socket Mode connections for one
+app but delivers each event to only one of them, at random — so a second bot
+looks exactly like the first one dropping messages intermittently. `run.sh`
+refuses to start if one is already running; stop it with:
+
+```bash
+pkill -f 'python.*slack/bot.py'
+```
+
+## One bot answers about one repo
+
+The bot answers from `COGMERGE_REPO`. Ask it about a repo it is not scoped to
+and it will correctly say nothing is recorded. To cover two projects, run two
+copies **with different Slack apps** — or restart it pointed at the other repo.
 
 **6. Use it** — `/cogmerge <anything>` works in any channel right away. For
 `@Cogmerge` mentions, invite the bot to that channel first: `/invite @Cogmerge`.
