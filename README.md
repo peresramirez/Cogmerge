@@ -123,6 +123,22 @@ Same index, two audiences: the agent reads it before a merge, you read it before
 you commit to an approach. It is the team's answer to *"why is it like this?"* —
 which today lives in the heads of whoever happens to still work here.
 
+### Ask from Slack
+
+Most people won't run a CLI to satisfy a passing "huh, why is this here?" — so the
+same memory is one slash command away:
+
+```
+/cogmerge src/webhooks/stripe.py
+/cogmerge why do we debounce the stripe webhook?
+/cogmerge is debounce_webhook safe to remove?
+```
+
+Setup is a manifest paste and two tokens — see [`slack/README.md`](slack/README.md).
+It runs in **Socket Mode**, so there's no public URL and no ngrok tunnel to keep
+alive. It reads memory only; sealing stays in the editor, where the conversation
+and the diff actually are.
+
 ## Get started
 
 Run this in your repository:
@@ -237,6 +253,7 @@ install.sh                      one-command install into any repo
     scripts/surfaces.py         git diff -> path / path:symbol
     scripts/init_qdrant.py      one-time payload index (Qdrant only)
 .cursor/                        generated from .claude/ by tools/sync-cursor.sh
+slack/                          optional bot: /cogmerge in any channel
 docs/                           PROBLEM, SOLUTION, BRAND
 ```
 

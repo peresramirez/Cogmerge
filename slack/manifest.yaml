@@ -1,0 +1,41 @@
+display_information:
+  name: Cogmerge
+  description: Ask why the code is the way it is. Answers from your team's recorded decisions.
+  background_color: "#12121a"
+  long_description: |
+    Cogmerge remembers why your team made the decisions they made — the alternatives
+    they rejected, the code that looks dead but is load-bearing, the questions they
+    answered along the way. Ask it here instead of DMing three people.
+
+    Use /cogmerge with a file, a symbol, or a plain question:
+      /cogmerge src/webhooks/stripe.py
+      /cogmerge why do we debounce the stripe webhook?
+      /cogmerge is debounce_webhook safe to remove?
+
+features:
+  bot_user:
+    display_name: Cogmerge
+    always_online: true
+  slash_commands:
+    - command: /cogmerge
+      description: Ask why the code is the way it is
+      usage_hint: "<file, symbol, or question>"
+      should_escape: false
+
+oauth_config:
+  scopes:
+    bot:
+      - commands
+      - chat:write
+      - app_mentions:read
+
+settings:
+  event_subscriptions:
+    bot_events:
+      - app_mention
+  interactivity:
+    is_enabled: true
+  # Socket Mode: no public URL, no ngrok, no request URLs to keep alive.
+  socket_mode_enabled: true
+  org_deploy_enabled: false
+  token_rotation_enabled: false
