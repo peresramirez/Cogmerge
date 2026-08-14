@@ -9,7 +9,7 @@
 <p align="center">
   <img alt="memory: Cognee" src="https://img.shields.io/badge/memory-Cognee-6D4AFF?style=flat-square">
   <img alt="vectors: Qdrant" src="https://img.shields.io/badge/vectors-Qdrant-6D4AFF?style=flat-square">
-  <img alt="works with Claude Code and Cursor" src="https://img.shields.io/badge/works%20with-Claude%20Code%20%C2%B7%20Cursor-FFB020?style=flat-square">
+  <img alt="works with Claude Code, Cursor and Codex" src="https://img.shields.io/badge/works%20with-Claude%20Code%20%C2%B7%20Cursor%20%C2%B7%20Codex-FFB020?style=flat-square">
   <br>
   <img alt="dependencies: none" src="https://img.shields.io/badge/dependencies-none-12121A?style=flat-square">
   <img alt="python 3.9+" src="https://img.shields.io/badge/python-3.9%2B-12121A?style=flat-square">
@@ -151,13 +151,14 @@ Run this in your repository:
 curl -fsSL https://raw.githubusercontent.com/peresramirez/Cogmerge/main/install.sh | bash
 ```
 
-It installs the skill and subagents for **both** Claude Code and Cursor, writes
+It installs the skill and subagents for **Claude Code, Cursor and Codex**, writes
 `AGENTS.md`, and adds `.env` to your `.gitignore`. Nothing to compile, no service to
 run, no dependencies — Python 3.9+ stdlib only.
 
 ```bash
 curl ... | bash -s -- --claude    # Claude Code only
 curl ... | bash -s -- --cursor    # Cursor only
+curl ... | bash -s -- --codex     # Codex only
 ```
 
 Then configure and verify:
