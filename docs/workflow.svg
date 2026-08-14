@@ -142,7 +142,7 @@
 <!-- footer -->
 <g class="f">
   <rect x="40" y="628" width="1160" height="52" rx="10" fill="#1C1C28" stroke="#2E2E42"/>
-  <circle cx="66" cy="654" r="4" fill="#2ECC8F"/>
+  <circle cx="66" cy="654" r="4" fill="#6D4AFF"/>
   <text x="82" y="659" class="bs" font-size="13">
     The agent harness is the runtime — no CLI, no MCP server, no LLM SDK. The scripts only do what a subagent cannot: write to Cognee and query it back.
   </text>

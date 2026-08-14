@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Cogmerge">
+<title>Cogmerge</title>
+
+<!--
+  App-icon tile: the mark on a solid Graphite ground so it never inherits a
+  host's background. Slack, GitHub and browser tabs each composite differently,
+  and a transparent icon breaks on exactly one of them. Use logo.svg when you
+  want the transparent mark.
+
+  Slack wants PNG, 512px minimum: render this with
+    qlmanage -t -s 1024 -o . docs/logo-tile.svg
+-->
+
+<rect width="512" height="512" rx="116" fill="#12121A"/>
+
+<!-- The mark's own bounding box sits inside its 256 viewBox, so scale to the
+     ink rather than the canvas or the icon reads tiny in a Slack sidebar. -->
+<g transform="translate(-14 -13) scale(2.1)">
+  <g transform="translate(128 128)">
+    <path d="M -78,-10 C -78,-42 -54,-60 -26,-54 C -17,-70 13,-74 26,-62 C 44,-72 72,-60 76,-40
+             C 96,-32 99,-3 84,10 C 92,32 73,55 50,51 C 38,68 8,71 -6,57 C -31,66 -60,52 -62,28
+             C -82,21 -85,-1 -78,-10 Z"
+          fill="none" stroke="#6D4AFF" stroke-width="11" stroke-linejoin="round"/>
+  </g>
+  <g fill="none" stroke="#6D4AFF" stroke-width="12" stroke-linecap="round">
+    <path d="M 98,92 C 98,122 116,128 134,128"/>
+    <path d="M 98,166 C 98,134 116,128 134,128"/>
+    <path d="M 134,128 L 156,128"/>
+  </g>
+  <circle cx="98" cy="92"  r="12" fill="#6D4AFF"/>
+  <circle cx="98" cy="166" r="12" fill="#6D4AFF"/>
+  <circle cx="166" cy="128" r="16" fill="#FFB020"/>
+</g>
+</svg>

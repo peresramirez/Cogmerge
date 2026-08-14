@@ -1,13 +1,17 @@
+<p align="center">
+  <img src="docs/logo.svg" alt="Cogmerge" width="104">
+</p>
+
 <h1 align="center">Cogmerge</h1>
 
 <p align="center"><strong>Git merges the code. Cogmerge merges the intent.</strong></p>
 
 <p align="center">
   <img alt="memory: Cognee" src="https://img.shields.io/badge/memory-Cognee-6D4AFF?style=flat-square">
-  <img alt="vectors: Qdrant" src="https://img.shields.io/badge/vectors-Qdrant-FF4D5E?style=flat-square">
+  <img alt="vectors: Qdrant" src="https://img.shields.io/badge/vectors-Qdrant-6D4AFF?style=flat-square">
   <img alt="works with Claude Code and Cursor" src="https://img.shields.io/badge/works%20with-Claude%20Code%20%C2%B7%20Cursor-FFB020?style=flat-square">
   <br>
-  <img alt="dependencies: none" src="https://img.shields.io/badge/dependencies-none-2ECC8F?style=flat-square">
+  <img alt="dependencies: none" src="https://img.shields.io/badge/dependencies-none-12121A?style=flat-square">
   <img alt="python 3.9+" src="https://img.shields.io/badge/python-3.9%2B-12121A?style=flat-square">
   <img alt="license: MIT" src="https://img.shields.io/badge/license-MIT-12121A?style=flat-square">
 </p>
