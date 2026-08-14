@@ -1,0 +1,150 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1240 720" width="1240" height="720" role="img" aria-labelledby="t d">
+<title id="t">Cogmerge workflow: SEAL captures intent, CHECK retrieves it before a merge</title>
+<desc id="d">Two lanes. SEAL turns an agent conversation into an intent record stored in Cognee and embedded in Qdrant, tagged by code surface. CHECK turns an incoming diff into the same surface tags, retrieves matching intent, and an adjudicator subagent blocks the merge on a contradiction. Both lanes meet at a shared CodeSurface node.</desc>
+
+<style>
+  .f  { font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  .h1 { font-size: 26px; font-weight: 700; fill: #F4F4F8; }
+  .sub{ font-size: 14px; fill: #9A9AB0; }
+  .lane { font-size: 13px; font-weight: 700; letter-spacing: 1.6px; }
+  .bt { font-size: 14.5px; font-weight: 650; fill: #F4F4F8; }
+  .bs { font-size: 12.5px; fill: #9A9AB0; }
+  .tag{ font-size: 11.5px; font-weight: 600; letter-spacing: .4px; }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  .box { fill: #1C1C28; stroke: #2E2E42; stroke-width: 1.5; }
+  .arw { stroke: #4A4A63; stroke-width: 2; fill: none; }
+</style>
+
+<defs>
+  <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="#4A4A63"/>
+  </marker>
+  <marker id="av" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="#6D4AFF"/>
+  </marker>
+  <marker id="aa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" fill="#FFB020"/>
+  </marker>
+</defs>
+
+<rect width="1240" height="720" rx="16" fill="#12121A"/>
+
+<!-- header -->
+<g class="f">
+  <text x="40" y="52" class="h1">Cogmerge</text>
+  <text x="186" y="52" class="h1" fill="#6D4AFF">/</text>
+  <text x="208" y="52" class="sub" font-size="17">Git merges the code. Cogmerge merges the intent.</text>
+</g>
+
+<!-- ============================ SEAL LANE ============================ -->
+<g class="f">
+  <rect x="40" y="86" width="58" height="20" rx="10" fill="#6D4AFF" opacity=".18"/>
+  <text x="52" y="100" class="lane" fill="#6D4AFF">SEAL</text>
+  <text x="112" y="100" class="sub">when a branch is finished — capture why, before the terminal closes</text>
+</g>
+
+<g class="f">
+  <rect class="box" x="40"   y="120" width="200" height="96" rx="12"/>
+  <text x="60" y="152" class="bt">Agent conversation</text>
+  <text x="60" y="173" class="bs">+ git diff main...HEAD</text>
+  <text x="60" y="192" class="bs">branch, PR, author</text>
+
+  <rect class="box" x="280"  y="120" width="200" height="96" rx="12" stroke="#6D4AFF"/>
+  <rect x="280" y="120" width="200" height="96" rx="12" fill="#6D4AFF" opacity=".07"/>
+  <text x="300" y="150" class="bt">cogmerge-distiller</text>
+  <text x="300" y="169" class="tag" fill="#6D4AFF">SUBAGENT</text>
+  <text x="300" y="192" class="bs">extracts the negative space</text>
+
+  <rect class="box" x="520"  y="120" width="200" height="96" rx="12"/>
+  <text x="540" y="150" class="bt">Intent Record</text>
+  <text x="540" y="170" class="bs">rejected alternatives</text>
+  <text x="540" y="188" class="bs">landmines · omissions</text>
+  <text x="540" y="206" class="bs">invariants · strength</text>
+
+  <rect class="box" x="760"  y="120" width="200" height="96" rx="12"/>
+  <text x="780" y="150" class="bt">Cognee</text>
+  <text x="780" y="170" class="bs mono">add() → cognify()</text>
+  <text x="780" y="192" class="bs">builds the graph</text>
+
+  <rect class="box" x="1000" y="120" width="200" height="96" rx="12" stroke="#FF4D5E"/>
+  <rect x="1000" y="120" width="200" height="96" rx="12" fill="#FF4D5E" opacity=".07"/>
+  <text x="1020" y="150" class="bt">Qdrant</text>
+  <text x="1020" y="170" class="bs">embeddings +</text>
+  <text x="1020" y="188" class="bs mono" fill="#FF4D5E">node_set tags</text>
+</g>
+
+<g class="arw" marker-end="url(#a)">
+  <path d="M240,168 L272,168"/>
+  <path d="M480,168 L512,168"/>
+  <path d="M720,168 L752,168"/>
+  <path d="M960,168 L992,168"/>
+</g>
+
+<!-- ============================ JOIN NODE ============================ -->
+<path class="arw" stroke="#6D4AFF" marker-end="url(#av)" d="M1100,216 C1100,282 980,300 872,344"/>
+<text x="1006" y="272" class="f tag" fill="#6D4AFF">writes</text>
+
+<g class="f">
+  <rect x="380" y="292" width="480" height="116" rx="14" fill="#1A1530" stroke="#6D4AFF" stroke-width="2"/>
+  <text x="404" y="324" class="tag" fill="#6D4AFF">THE JOIN KEY — ONE SHARED NODE</text>
+  <text x="404" y="356" class="bt mono" font-size="15">src/webhooks/stripe.py:debounce_webhook</text>
+  <text x="404" y="384" class="bs">Alice's record and Bob's diff meet here — two developers</text>
+  <text x="404" y="400" class="bs">who never spoke, connected by the code they both touched.</text>
+</g>
+
+<path class="arw" stroke="#FFB020" marker-end="url(#aa)" d="M500,408 C500,452 560,470 618,484"/>
+<text x="512" y="452" class="f tag" fill="#FFB020">reads</text>
+
+<!-- ============================ CHECK LANE ============================ -->
+<g class="f">
+  <rect x="40" y="452" width="66" height="20" rx="10" fill="#FFB020" opacity=".18"/>
+  <text x="52" y="466" class="lane" fill="#FFB020">CHECK</text>
+  <text x="120" y="466" class="sub">before every merge, rebase or refactor — automatic, never asked for</text>
+</g>
+
+<g class="f">
+  <rect class="box" x="40"   y="486" width="200" height="96" rx="12"/>
+  <text x="60" y="516" class="bt">Incoming diff</text>
+  <text x="60" y="537" class="bs">merges clean · CI green</text>
+  <text x="60" y="556" class="bs">reviewer says LGTM</text>
+
+  <rect class="box" x="280"  y="486" width="200" height="96" rx="12"/>
+  <text x="300" y="516" class="bt">surfaces.py</text>
+  <text x="300" y="537" class="bs mono">path : symbol</text>
+  <text x="300" y="558" class="bs">deterministic, no LLM</text>
+
+  <rect class="box" x="520"  y="486" width="200" height="96" rx="12" stroke="#FF4D5E"/>
+  <rect x="520" y="486" width="200" height="96" rx="12" fill="#FF4D5E" opacity=".07"/>
+  <text x="540" y="516" class="bt">Scoped retrieval</text>
+  <text x="540" y="537" class="bs mono" fill="#FF4D5E">nodeName filter</text>
+  <text x="540" y="558" class="bs">→ GRAPH_COMPLETION</text>
+
+  <rect class="box" x="760"  y="486" width="200" height="96" rx="12" stroke="#6D4AFF"/>
+  <rect x="760" y="486" width="200" height="96" rx="12" fill="#6D4AFF" opacity=".07"/>
+  <text x="780" y="516" class="bt">cogmerge-adjudicator</text>
+  <text x="780" y="535" class="tag" fill="#6D4AFF">SUBAGENT</text>
+  <text x="780" y="558" class="bs">contradicts / depends / —</text>
+
+  <rect class="box" x="1000" y="486" width="200" height="96" rx="12" stroke="#FF4D5E" stroke-width="2"/>
+  <rect x="1000" y="486" width="200" height="96" rx="12" fill="#FF4D5E" opacity=".12"/>
+  <text x="1020" y="516" class="bt" fill="#FF4D5E">HIGH → blocked</text>
+  <text x="1020" y="537" class="bs">verbatim rationale</text>
+  <text x="1020" y="558" class="bs">+ paste-ready re-prompt</text>
+</g>
+
+<g class="arw" marker-end="url(#a)">
+  <path d="M240,534 L272,534"/>
+  <path d="M480,534 L512,534"/>
+  <path d="M720,534 L752,534"/>
+  <path d="M960,534 L992,534"/>
+</g>
+
+<!-- footer -->
+<g class="f">
+  <rect x="40" y="628" width="1160" height="52" rx="10" fill="#1C1C28" stroke="#2E2E42"/>
+  <circle cx="66" cy="654" r="4" fill="#2ECC8F"/>
+  <text x="82" y="659" class="bs" font-size="13">
+    The agent harness is the runtime — no CLI, no MCP server, no LLM SDK. The scripts only do what a subagent cannot: write to Cognee and query it back.
+  </text>
+</g>
+</svg>

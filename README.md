@@ -1,11 +1,25 @@
-# Cogmerge
+<h1 align="center">Cogmerge</h1>
 
-**Git merges the code. Cogmerge merges the intent.**
+<p align="center"><strong>Git merges the code. Cogmerge merges the intent.</strong></p>
 
-Cogmerge gives every merge a memory — it captures *why* developers and their agents
-made the decisions they made, and warns you before a branch silently undoes them.
+<p align="center">
+  <img alt="memory: Cognee" src="https://img.shields.io/badge/memory-Cognee-6D4AFF?style=flat-square">
+  <img alt="vectors: Qdrant" src="https://img.shields.io/badge/vectors-Qdrant-FF4D5E?style=flat-square">
+  <img alt="runtime: Claude Code" src="https://img.shields.io/badge/runtime-Claude%20Code-FFB020?style=flat-square">
+  <img alt="skill + 2 subagents" src="https://img.shields.io/badge/skill-%2B%202%20subagents-6D4AFF?style=flat-square">
+  <br>
+  <img alt="dependencies: none" src="https://img.shields.io/badge/dependencies-none-2ECC8F?style=flat-square">
+  <img alt="python 3.9+" src="https://img.shields.io/badge/python-3.9%2B-12121A?style=flat-square">
+  <img alt="status: working" src="https://img.shields.io/badge/demo-verified%20end%20to%20end-2ECC8F?style=flat-square">
+  <img alt="license: MIT" src="https://img.shields.io/badge/license-MIT-12121A?style=flat-square">
+</p>
 
-Built on [Cognee](https://cognee.ai) and [Qdrant](https://qdrant.tech).
+<p align="center">
+Cogmerge gives every merge a memory — it captures <em>why</em> developers and their
+agents made the decisions they made, and warns you before a branch silently undoes them.
+</p>
+
+<p align="center"><img src="docs/workflow.svg" alt="Cogmerge workflow: SEAL captures intent from an agent conversation into Cognee and Qdrant tagged by code surface; CHECK turns an incoming diff into the same surface tags, retrieves the matching intent, and an adjudicator subagent blocks the merge on a contradiction. Both lanes meet at one shared CodeSurface node." width="100%"></p>
 
 ---
 
@@ -37,21 +51,22 @@ one hop away.
 
 ## How it works
 
-```
-SEAL   branch finished
-       -> cogmerge-distiller subagent reads the conversation + diff
-       -> extracts the negative space: rejected alternatives, landmines,
-          deliberate omissions, invariants  (never restates the diff)
-       -> stored in Cognee, tagged  surface:path:symbol,  embedded in Qdrant
+Two operations, shown in the diagram above.
 
-CHECK  before any merge
-       -> diff -> surfaces -> node_set filter (scoped retrieval, no LLM)
-       -> GRAPH_COMPLETION over that slice
-       -> cogmerge-adjudicator subagent: contradicts / depends_on / unrelated
-       -> HIGH finding blocks the merge and hands back a paste-ready re-prompt
-```
+**SEAL** — when a branch is finished, the `cogmerge-distiller` subagent reads the
+conversation and the diff and extracts the *negative space*: rejected alternatives,
+landmines, deliberate omissions, invariants. It never restates the diff — if the
+diff shows it, it is not intent. The record is stored in Cognee, tagged
+`surface:path:symbol`, and embedded in Qdrant.
 
-The surface tag is the join key. Alice's record and Bob's diff meet on the one
+**CHECK** — before any merge, the diff is reduced to surfaces deterministically (no
+LLM), those surfaces become a `nodeName` filter so retrieval stays scoped as the
+repo grows, and `GRAPH_COMPLETION` runs over that slice. The
+`cogmerge-adjudicator` subagent then rules on each record — `contradicts`,
+`depends_on`, or `unrelated`. A HIGH finding blocks the merge and returns the
+original author's verbatim rationale plus a paste-ready re-prompt.
+
+**The surface tag is the join key.** Alice's record and Bob's diff meet on the one
 symbol they both touched — two developers who never spoke, connected by the code.
 
 **The agent harness is the runtime.** There is no CLI, no MCP server, no LLM SDK.
