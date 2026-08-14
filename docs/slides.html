@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cogmerge — presentation</title>
+<style>
+  :root{
+    --violet:#6D4AFF; --amber:#FFB020; --red:#FF4D5E;
+    --graphite:#12121A; --panel:#1C1C28; --border:#2E2E42;
+    --mist:#F4F4F8; --dim:#9A9AB0;
+    --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{background:var(--graphite);color:var(--mist);font-family:var(--sans);overflow:hidden}
+
+  .slide{
+    position:absolute; inset:0; display:none;
+    flex-direction:column; justify-content:center;
+    padding:6vh 8vw; gap:2.2vh;
+  }
+  .slide.on{display:flex}
+
+  h1{font-size:clamp(38px,6.4vw,88px);line-height:1.02;letter-spacing:-.02em;font-weight:750}
+  h2{font-size:clamp(26px,3.4vw,46px);line-height:1.1;letter-spacing:-.015em;font-weight:700}
+  p{font-size:clamp(16px,1.65vw,25px);line-height:1.5;max-width:62ch;color:var(--dim)}
+  p strong{color:var(--mist);font-weight:650}
+  .lead{font-size:clamp(19px,2.1vw,31px);color:var(--mist)}
+
+  .kicker{
+    font-size:clamp(11px,.95vw,14px); letter-spacing:.18em; text-transform:uppercase;
+    font-weight:700; color:var(--violet);
+  }
+  .amber{color:var(--amber)} .red{color:var(--red)} .violet{color:var(--violet)}
+
+  pre{
+    font-family:var(--mono); font-size:clamp(10px,1.15vw,17px); line-height:1.65;
+    background:var(--panel); border:1px solid var(--border); border-radius:12px;
+    padding:2.4vh 2vw; overflow:auto; color:var(--dim);
+  }
+  pre b{color:var(--mist);font-weight:600}
+  pre .r{color:var(--red);font-weight:600}
+  pre .a{color:var(--amber)}
+
+  ul{list-style:none;display:flex;flex-direction:column;gap:1.4vh;max-width:64ch}
+  li{font-size:clamp(15px,1.55vw,24px);line-height:1.45;color:var(--dim);padding-left:1.5em;position:relative}
+  li::before{content:"";position:absolute;left:0;top:.62em;width:.5em;height:.5em;border-radius:50%;background:var(--violet)}
+  li b{color:var(--mist);font-weight:650}
+  li.key::before{background:var(--amber)}
+
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:3vw;align-items:start}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:2.4vh 1.8vw}
+  .card h3{font-size:clamp(15px,1.5vw,22px);margin-bottom:.7em;font-weight:700}
+  .card p{font-size:clamp(13px,1.25vw,18px);max-width:none}
+
+  .center{align-items:center;text-align:center}
+  .center p{margin-inline:auto}
+  img.logo{width:clamp(72px,9vw,132px);height:auto}
+
+  /* The diagram is the slide. Give it the room instead of the margins. */
+  .slide.wide{padding:3.5vh 3vw;gap:1.2vh}
+  img.flow{width:100%;max-height:80vh;object-fit:contain}
+
+  .tags{display:flex;flex-wrap:wrap;gap:.6em;margin-top:.6vh}
+  .tag{
+    font-size:clamp(11px,1.1vw,16px); font-weight:600;
+    border:1px solid var(--border); border-radius:999px; padding:.42em 1em; color:var(--dim);
+  }
+  .tag.on{border-color:var(--violet);color:var(--mist)}
+
+  footer{
+    position:fixed;left:0;right:0;bottom:0;
+    display:flex;justify-content:space-between;align-items:center;
+    padding:1.6vh 8vw;font-size:clamp(10px,.95vw,13px);color:var(--dim);
+    letter-spacing:.06em;
+  }
+  .bar{position:fixed;left:0;top:0;height:3px;background:var(--violet);transition:width .22s ease}
+  @media (prefers-reduced-motion:reduce){.bar{transition:none}}
+</style>
+</head>
+<body>
+
+<div class="bar" id="bar"></div>
+
+<!-- 1 ───────────────────────────────────────────────────────────── -->
+<section class="slide center">
+  <img class="logo" src="logo.svg" alt="">
+  <h1>Cogmerge</h1>
+  <p class="lead">Git merges the code.<br><strong>Cogmerge merges the intent.</strong></p>
+  <div class="tags" style="justify-content:center">
+    <span class="tag on">Cognee</span>
+    <span class="tag on">Qdrant</span>
+    <span class="tag">Claude Code · Cursor · Codex</span>
+  </div>
+</section>
+
+<!-- 2 ───────────────────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="kicker">The problem</div>
+  <h2>Your agent's conversation is deleted<br>when you close the terminal.</h2>
+  <pre>
+<b>Alice, PR #121</b>   Adds debounce_webhook(). Tells her agent why:
+                 <span class="a">"Stripe caps us at 25 req/s. I rejected a Redis queue —
+                  extra failure mode, no monitoring. No test, because
+                  reproducing it needs a live rate limit. Don't remove this."</span>
+                 Then she closes the terminal. The conversation is gone.
+
+<b>Bob, PR #128</b>     Asks his agent to clean up the webhook module.
+                 His agent sees an untested no-op wrapper. It inlines it away.
+
+git merge        clean. No conflict. Not even a nearby line.
+CI               green. Nothing tested it, by design.
+AI reviewer      "LGTM, nice simplification."
+<span class="r">production       429s from Stripe, next Tuesday.</span></pre>
+</section>
+
+<!-- 3 ───────────────────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="kicker">Why nothing catches it</div>
+  <h2>Git stores what <span class="violet">exists</span>.<br>The context that matters is what <span class="amber">doesn't</span>.</h2>
+  <ul>
+    <li>The alternative you <b>rejected</b> — and why</li>
+    <li>The test you <b>deliberately didn't write</b></li>
+    <li>The wrapper that <b>looks dead but is a rate limit</b></li>
+  </ul>
+  <p>None of it has anywhere to live. So an agent asked to merge <strong>infers intent from syntax</strong> — and inferred intent is a hallucination with a clean diff attached.</p>
+</section>
+
+<!-- 4 ───────────────────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="kicker">The idea</div>
+  <h2>Git indexes code by <span class="violet">file</span>.<br>Cogmerge indexes reasoning by <span class="amber">code surface</span>.</h2>
+  <pre>
+   Alice ──▶ [ intent: PR #121 ]──┐
+                                  ├──▶ <span class="a">src/webhooks/stripe.py:debounce_webhook</span>
+   Bob   ──▶ [ diff:   PR #128 ]──┘              <b>one shared node</b></pre>
+  <p>Two developers who never spoke, connected by the one symbol they both touched. <strong>That node is the join key</strong> — and the whole product.</p>
+</section>
+
+<!-- 5 ───────────────────────────────────────────────────────────── -->
+<section class="slide wide">
+  <div class="kicker">How it works</div>
+  <img class="flow" src="workflow.svg" alt="SEAL captures intent into Cognee and Qdrant tagged by code surface; CHECK turns a diff into the same tags, retrieves the matching intent, and blocks the merge on a contradiction.">
+</section>
+
+<!-- 6 ───────────────────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="kicker">Demo</div>
+  <h2>Everything else says yes.</h2>
+  <pre>
+$ cogmerge check --base main --head refactor/webhook-cleanup
+
+<span class="r">🔴 HIGH — contradicts a hard invariant from PR #121 (@alice)</span>
+
+  You remove:  debounce_webhook()  → src/webhooks/stripe.py:41
+  She wrote:   <span class="a">"Stripe caps this endpoint at 25 req/s. The wrapper is NOT
+                dead — it IS the rate limit. I rejected the Redis queue on
+                purpose: extra failure mode, no monitoring."</span>
+  Strength:    hard_invariant · no expiry
+
+  <b>▸ Re-prompt for your agent:</b>
+    "debounce_webhook is load-bearing: it enforces Stripe's 25 req/s cap.
+     Restore it — and do not replace it with a queue, that alternative
+     was explicitly rejected in PR #121."</pre>
+  <p>Git merged it. CI passed it. The AI reviewer approved it. <strong>The only thing that caught it was memory of a conversation that used to be deleted.</strong></p>
+</section>
+
+<!-- 7 ───────────────────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="kicker">Not just merges</div>
+  <h2>The same memory answers <span class="amber">"why is it like this?"</span></h2>
+  <div class="cols">
+    <div class="card">
+      <h3>For the agent</h3>
+      <p>Runs before every merge, unprompted. A HIGH finding stops it and hands back the original author's words.</p>
+    </div>
+    <div class="card">
+      <h3>For the team</h3>
+      <p><code>/cogmerge why do we debounce?</code> in Slack — answered in the words of whoever decided, whether or not they still work here.</p>
+    </div>
+  </div>
+  <ul>
+    <li>You stop <b>re-litigating settled decisions</b></li>
+    <li>You inherit the <b>constraints</b>, not just the code</li>
+    <li class="key">Questions your agent asked get <b>reused</b> — a proven ambiguity, already answered</li>
+  </ul>
+</section>
+
+<!-- 8 ───────────────────────────────────────────────────────────── -->
+<section class="slide">
+  <div class="kicker">What's real</div>
+  <h2>Working today, end to end.</h2>
+  <ul>
+    <li><b>Cognee</b> knowledge graph, <b>Qdrant</b> vectors — scoped retrieval by <code>node_set</code>, not a full scan</li>
+    <li><b>Two subagents</b> — a distiller that extracts the negative space, an adjudicator that rules on contradictions</li>
+    <li><b>One skill, three editors</b> — Claude Code, Cursor, Codex. No CLI, no MCP server, no LLM SDK</li>
+    <li><b>Slack bot</b> — Socket Mode, no tunnel</li>
+    <li class="key"><b>Zero dependencies.</b> One command to install into any repo</li>
+  </ul>
+  <pre>curl -fsSL https://raw.githubusercontent.com/peresramirez/Cogmerge/main/install.sh | bash</pre>
+</section>
+
+<footer>
+  <span>COGMERGE</span>
+  <span><span id="n">1</span> / <span id="t">8</span> &nbsp;·&nbsp; ← → to navigate</span>
+</footer>
+
+<script>
+  const slides = [...document.querySelectorAll('.slide')];
+  const bar = document.getElementById('bar');
+  const n = document.getElementById('n');
+  document.getElementById('t').textContent = slides.length;
+  let i = 0;
+
+  function show(k){
+    i = Math.max(0, Math.min(slides.length - 1, k));
+    slides.forEach((s, j) => s.classList.toggle('on', j === i));
+    bar.style.width = ((i + 1) / slides.length * 100) + '%';
+    n.textContent = i + 1;
+    location.hash = i + 1;
+  }
+  addEventListener('keydown', e => {
+    if (['ArrowRight',' ','PageDown','n'].includes(e.key)) { e.preventDefault(); show(i + 1); }
+    if (['ArrowLeft','PageUp','p'].includes(e.key))        { e.preventDefault(); show(i - 1); }
+    if (e.key === 'Home') show(0);
+    if (e.key === 'End')  show(slides.length - 1);
+  });
+  addEventListener('click', e => { if (!e.target.closest('a')) show(i + 1); });
+  show(parseInt(location.hash.slice(1)) - 1 || 0);
+</script>
+</body>
+</html>
